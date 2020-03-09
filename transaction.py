@@ -7,22 +7,31 @@ class Transaction:
     inputs = None
     outputs =None
     sigs = None
-    reqd = None
+    requireds = None
     def __init__(self):
         self.inputs = []
         self.outputs = []
         self.sigs = []
-        self.reqd = []
+        self.requireds = []
+        self.total_in = 0
+        self.total_out = 0
+
     def add_input(self, from_addr, amount):
+        self.total_in += amount
         self.inputs.append((from_addr, amount))
+
     def add_output(self, to_addr, amount):
+        self.total_out += amount
         self.outputs.append((to_addr, amount))
+
     def add_required(self, addr):
-        self.reqd.append(addr)
+        self.requireds.append(addr)
+
     def sign(self, private):
         message = self.__gather()
         newsig = signature.sign(message, private)
         self.sigs.append(newsig)
+
     def is_valid(self):
         total_in = 0
         total_out = 0
@@ -38,7 +47,7 @@ class Transaction:
             if amount < 0:
                 return False
             total_in = total_in + amount
-        for addr in self.reqd:
+        for addr in self.requireds:
             found = False
             for s in self.sigs:
                 if signature.verify(message, s, addr) :
@@ -59,7 +68,7 @@ class Transaction:
         data=[]
         data.append(self.inputs)
         data.append(self.outputs)
-        data.append(self.reqd)
+        data.append(self.requireds)
         return data
     def __repr__(self):
         reprstr = "INPUTS:\n"
@@ -68,8 +77,8 @@ class Transaction:
         reprstr = reprstr + "OUTPUTS:\n"
         for addr, amt in self.outputs:
             reprstr = reprstr + str(amt) + " to " + str(addr) + "\n"
-        reprstr = reprstr + "REQD:\n"
-        for r in self.reqd:
+        reprstr = reprstr + "requireds:\n"
+        for r in self.requireds:
             reprstr = reprstr + str(r) + "\n"
         reprstr = reprstr + "SIGS:\n"
         for s in self.sigs:

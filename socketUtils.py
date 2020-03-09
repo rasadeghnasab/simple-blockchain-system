@@ -4,14 +4,15 @@ import socket
 import pickle
 import select
 
-TCP_PORT = 5005
+MINER_SERVER_PORT = 5005
+WALLET_SERVER_PORT = 5006
 BUFFER_SIZE = 1024
 
 
-def newServerConnection(ip_addr):
+def newServerConnection(ip_addr, port=MINER_SERVER_PORT):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind((ip_addr, TCP_PORT))
+    s.bind((ip_addr, port))
     s.listen()
 
     return s
@@ -32,9 +33,9 @@ def recvObj(socket):
 
     return None
 
-def sendObj(ip_addr, inObj):
+def sendObj(ip_addr, inObj, port=MINER_SERVER_PORT):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((ip_addr, TCP_PORT))
+    s.connect((ip_addr, port))
 
     data = pickle.dumps(inObj)
 

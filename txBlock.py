@@ -22,13 +22,13 @@ class TxBlock (CBlock):
         def addTx(self, Tx_in):
             self.data.append(Tx_in)
 
-        def __count_totals(self):
+        def count_totals(self):
             total_in = 0
             total_out = 0
 
             for transaction in self.data:
-                total_in += transaction.in_amount
-                total_out += transaction.out_amount
+                total_in += transaction.total_in
+                total_out += transaction.total_out
 
             return total_in, total_out
 
@@ -40,7 +40,7 @@ class TxBlock (CBlock):
                                 return False
 
 
-                total_in, total_out = self.__count_totals()
+                total_in, total_out = self.count_totals()
 
                 if total_out - total_in - reward > 0.000000000001:
                     return False

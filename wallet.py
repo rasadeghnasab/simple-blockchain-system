@@ -4,6 +4,8 @@ import socketUtils
 from transaction import Transaction as Tx
 import signature
 
+head_blocks = [None]
+
 Tx1 = Tx()
 Tx2 = Tx()
 
@@ -25,12 +27,14 @@ Tx2.sign(pr1)
 
 try:
     socketUtils.sendObj('localhost', Tx1)
+    print("Sent Tx1")
     socketUtils.sendObj('localhost', Tx2)
+    print("Sent Tx2")
 except:
     print("Error! Connection unsuccessfull.")
 
-server = socketUtils.newServerConnection('localhost')
-for i in range(30):
+server = socketUtils.newServerConnection('localhost', 5006)
+for i in range(50):
     newBlock = socketUtils.recvObj(server)
     if newBlock:
         break
@@ -47,8 +51,22 @@ else:
     print("Error! Nonce is not valid")
 
 for tx in newBlock.data:
-    if tx == Tx1:
-        print("Tx1 is present")
-    if tx == Tx2:
-        print("Tx2 is present")
+    try:
+        if tx.inputs[0][0] == pu1 and tx.inputs[0][1] == 4.0:
+            print("Tx1 is present")
+    except:
+        print("expected exceptions happend in wallet.py line 58")
+    try:
+        if tx.inputs[0][0] == pu3 and tx.inputs[0][1] == 4.0:
+            print("Tx2 is present")
+    except:
+        print("expected exceptions happend in wallet.py line 58")
 
+# Add new block to blockchain
+for b in head_blocks:
+    if b == None or newBlock.previousHash == b.computeHash():
+        newBlock.previousBlock = b
+        head_blocks.remove(b)
+        head_blocks.append(newBlock)
+
+print(head_blocks, "Wallet receive the new block successfully")
